@@ -66,3 +66,18 @@ def update_variable(a, x, h, xk1, hk1):
     
     return w, b, c
 
+# CDK
+def GibbsSampling(xx, hh, count, k):
+    xk = sampleInt(tf.sigmoid(tf.matmul(W, hh) + tf.tile(c, [1, size_bt])))
+    hk = sampleInt(tf.sigmoid(tf.matmul(tf.transpose(W), xk) + tf.tile(b, [1, size_bt])))
+    return xk, hk, count+1, k
+
+def checkIflessThanK(xk, hk, count, k):
+    return count <= k
+
+# size_h is the size of the hidden layer
+size_h = 20
+b, c, h, W, v, a = init_variable(size_h)
+[xk1, hk1, _, _] = tf.while_loop(checkIflessThanK, GibbsSampling, [v, h, ct, k])
+W_, b_, c_ = update_variable(a, v, h, xk1, hk1)
+weight_offset = [W.assign_add(W_), b.assign_add(b_), c.assign_add(c_)]
