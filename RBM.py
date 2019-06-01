@@ -34,8 +34,6 @@ testing_dataset_reduced_20 = copy.deepcopy(mnist.test)
 removePixels(testing_dataset_reduced_20.images, 20)
 testing_dataset_reduced_50 = copy.deepcopy(mnist.test)
 removePixels(testing_dataset_reduced_50.images, 50)
-testing_dataset_reduced_80 = copy.deepcopy(mnist.test)
-removePixels(testing_dataset_reduced_80.images, 80)
 
 # helper function
 def sample(probs):
@@ -76,7 +74,7 @@ def checkIflessThanK(xk, hk, count, k):
     return count <= k
 
 # size_h is the size of the hidden layer
-size_h = 20
+size_h = 100
 b, c, h, W, v, a = init_variable(size_h)
 [xk1, hk1, _, _] = tf.while_loop(checkIflessThanK, GibbsSampling, [v, h, ct, k])
 W_, b_, c_ = update_variable(a, v, h, xk1, hk1)
@@ -106,3 +104,9 @@ def rbm_image(weight_offset, data):
     
 print("Images generated using Training Dataset")
 rbm_image(weight_offset, mnist.train)
+print("Images generated using Testing Dataset")
+rbm_image(weight_offset, mnist.test)
+print("Images generated using Testing Dataset with 20% pixels removed")
+rbm_image(weight_offset, testing_dataset_reduced_20)
+print("Images generated using Testing Dataset with 50% pixels removed")
+rbm_image(weight_offset, testing_dataset_reduced_50)
