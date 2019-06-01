@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Wed May 29 17:13:26 2019
-
-@author: shash
-"""
 
 import tensorflow as tf
 from PIL import Image
@@ -12,6 +7,7 @@ from matplotlib import pyplot as plt
 import random
 import copy
 from tensorflow.examples.tutorials.mnist import input_data
+from util import tile_raster_images
 
 #### we do the first test on the minst data again
 mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
@@ -30,4 +26,26 @@ def sample(probs):
 
 def sampleInt(probs):
     return tf.floor(probs + tf.random_uniform(tf.shape(probs), 0, 1))
+
+def init_variable(size_h):
+    
+    # RBM energy function
+    # variables and place holder
+    b = tf.Variable(tf.random_uniform([size_h, 1], -0.005, 0.005))
+    c = tf.Variable(tf.random_uniform([size_x, 1], -0.005, 0.005))
+    
+    W = tf.Variable(tf.random_uniform([size_x, size_h], -0.005, 0.005))
+    v = tf.placeholder(tf.float32, [size_x, size_bt])
+    h = sample(tf.sigmoid(tf.matmul(tf.transpose(W), v) + tf.tile(b, [1, size_bt])))
+    a = tf.placeholder(tf.float32)
+    
+    return b, c, h, W, v, a
+
+def update_variable(a, x, h, xk1, hk1):
+    
+    w = tf.multiply(a/float(size_bt), tf.subtract(tf.matmul(x, tf.transpose(h)), tf.matmul(xk1, tf.transpose(hk1))))
+    b = tf.multiply(a/float(size_bt), tf.reduce_sum(tf.subtract(h, hk1), 1, True))
+    c = tf.multiply(a/float(size_bt), tf.reduce_sum(tf.subtract(x, xk1), 1, True))
+    
+    return w, b, c
 
