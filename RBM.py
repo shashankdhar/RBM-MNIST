@@ -81,3 +81,28 @@ b, c, h, W, v, a = init_variable(size_h)
 [xk1, hk1, _, _] = tf.while_loop(checkIflessThanK, GibbsSampling, [v, h, ct, k])
 W_, b_, c_ = update_variable(a, v, h, xk1, hk1)
 weight_offset = [W.assign_add(W_), b.assign_add(b_), c.assign_add(c_)]
+
+# loop with batch
+def rbm_image(weight_offset, data):
+    
+    # run session
+    sess = tf.Session()
+    init = tf.initialize_all_variables()
+    sess.run(init)
+    
+    tr_x = np.zeros((28,28))
+    
+    for i in range(1, 10002):
+        tr_x, tr_y  = data.next_batch(size_bt)
+        tr_x = np.transpose(tr_x)
+        tr_y = np.transpose(tr_y)
+        alpha = min(0.05, 100/float(i))
+        sess.run(weight_offset, feed_dict={v: tr_x, a: alpha})
+    
+    image_gen = tile_raster_images(np.transpose(tr_x), img_shape=(28, 28), tile_shape=(10, 10),tile_spacing=(2, 2))
+    imagex = Image.fromarray(image_gen)
+    plt.imshow(imagex)
+    plt.show()
+    
+print("Images generated using Training Dataset")
+rbm_image(weight_offset, mnist.train)
