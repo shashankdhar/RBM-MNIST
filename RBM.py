@@ -16,9 +16,26 @@ trX, trY, teX, teY = mnist.train.images, mnist.train.labels, mnist.test.images, 
 k = tf.constant(1)
 ct = tf.constant(1)
     
-# size_x is the size of the visiable layer
+# size_x is the size of the visible layer
 size_x = 28*28
 size_bt = 100 # batch size
+
+def removePixels(dataset, ratio):
+    max_count = int(784*(ratio/100))
+    rindex = random.sample(range(0, 783), max_count)
+    for i in range(len(dataset)):        
+        for j in rindex:
+            dataset[i][j] = 0
+            
+    return dataset
+
+# create reduced testing dataset
+testing_dataset_reduced_20 = copy.deepcopy(mnist.test)
+removePixels(testing_dataset_reduced_20.images, 20)
+testing_dataset_reduced_50 = copy.deepcopy(mnist.test)
+removePixels(testing_dataset_reduced_50.images, 50)
+testing_dataset_reduced_80 = copy.deepcopy(mnist.test)
+removePixels(testing_dataset_reduced_80.images, 80)
 
 # helper function
 def sample(probs):
